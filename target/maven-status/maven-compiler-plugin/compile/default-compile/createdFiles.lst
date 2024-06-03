@@ -3,5 +3,8 @@ com/proyecto/view/MenuPrincipal$1.class
 com/proyecto/conexion/Conexion.class
 com/proyecto/data/AlumnosDAO.class
 com/proyecto/data/AsistenciasDAO.class
+com/proyecto/view/MenuPrincipal$2.class
 com/proyecto/view/MenuPrincipal.class
+com/proyecto/view/MenuPrincipal$3.class
 com/proyecto/data/AsistenciasDAOJDBC.class
+com/proyecto/objects/AlumnosDTO.class

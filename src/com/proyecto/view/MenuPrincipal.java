@@ -1,20 +1,102 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package com.proyecto.view;
+
+import com.proyecto.data.AlumnosDAOJDBC;
+import com.proyecto.data.AsistenciasDAOJDBC;
+import com.proyecto.objects.AlumnosDTO;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
  * @author aspxe
  */
 public class MenuPrincipal extends javax.swing.JFrame {
+    
+    private Timer timer;
+    private AsistenciasDAOJDBC asistencia;
+    private AlumnosDAOJDBC alumnosRecuperados;
+    private AlumnosDTO alumno;
+    private int registro;
+    
+    String regex = "^(?i)(1[7-9]|[2-9][0-9])(AL|BL)([0-9]{7})$";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher1 = null;
 
     /**
      * Creates new form MenuPrincipal
      */
     public MenuPrincipal() {
+        alumno = null;
         initComponents();
+        btnGroupFirst.add(radioIniciar);
+        btnGroupFirst.add(radioDetener);
+        radioIniciar.setEnabled(false);
+        radioDetener.setEnabled(false);
+        btnDetener.setEnabled(false);
+        txtArea.setEnabled(false);
+        timer = new Timer(200, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (radioIniciar.isSelected()) {
+                    if(!txtArea.getText().trim().isEmpty() && !txtArea.getText().isEmpty()){
+                        matcher1 = pattern.matcher(txtArea.getText().trim());
+                        if(matcher1.matches()){
+                            System.out.println(txtArea.getText().trim()+": "+matcher1.matches());
+                            registrarEntrada();
+                        }else if(!matcher1.matches()){
+                            System.out.println(txtArea.getText().trim()+": "+matcher1.matches());
+                            JOptionPane.showMessageDialog(rootPane, "El dato escaneado no corresponde a una matrícula válida", "Dato inválido", JOptionPane.ERROR_MESSAGE);    
+                            txtArea.setText(null);
+                        }
+                    }
+                    
+                } else if (radioDetener.isSelected()) {
+                    if(!txtArea.getText().trim().isEmpty() && !txtArea.getText().isEmpty()){
+                        matcher1 = pattern.matcher(txtArea.getText().trim());
+                        if(matcher1.matches()){
+                            System.out.println(txtArea.getText().trim()+": "+matcher1.matches());
+                            registrarSalida();
+                        }else if(!matcher1.matches()){
+                            JOptionPane.showMessageDialog(rootPane, "El dato escaneado no corresponde a una matrícula válida", "Dato inválido", JOptionPane.ERROR_MESSAGE);
+                            txtArea.setText(null);
+                        }    
+                    }
+                }
+            }
+        });
+
+        // Agregar un DocumentListener al JTextArea
+        txtArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                // Método llamado cuando se inserta texto en el JTextArea
+                // Reiniciar el temporizador en cada cambio para evitar ejecuciones prematuras
+                timer.restart();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                // Método llamado cuando se elimina texto en el JTextArea
+                // Reiniciar el temporizador en cada cambio para evitar ejecuciones prematuras
+                timer.restart();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Método llamado cuando hay cambios que no son insertar o eliminar texto
+            }
+        });
+        
     }
 
     /**
@@ -26,22 +108,252 @@ public class MenuPrincipal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        btnGroupFirst = new javax.swing.ButtonGroup();
+        btnIniciar = new javax.swing.JButton();
+        btnDetener = new javax.swing.JButton();
+        radioIniciar = new javax.swing.JRadioButton();
+        radioDetener = new javax.swing.JRadioButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtArea = new javax.swing.JTextArea();
+        lblEstatus = new javax.swing.JLabel();
+        lblInformacion = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblGrado = new javax.swing.JLabel();
+        lblGrupo = new javax.swing.JLabel();
+        lblTurno = new javax.swing.JLabel();
+        lblNombreRecuperado = new javax.swing.JLabel();
+        lblGradoRecuperado = new javax.swing.JLabel();
+        lblGrupoRecuperado = new javax.swing.JLabel();
+        lblTurnoRecuperado = new javax.swing.JLabel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(900, 480));
+        setMinimumSize(new java.awt.Dimension(900, 480));
+        setPreferredSize(new java.awt.Dimension(900, 480));
+        getContentPane().setLayout(null);
+
+        btnIniciar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        btnIniciar.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/codigo-qr.png")); // NOI18N
+        btnIniciar.setText("Iniciar Escaneo");
+        btnIniciar.setPreferredSize(new java.awt.Dimension(250, 80));
+        btnIniciar.setVerifyInputWhenFocusTarget(false);
+        btnIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIniciarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnIniciar);
+        btnIniciar.setBounds(30, 150, 250, 80);
+
+        btnDetener.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        btnDetener.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/detener(1).png")); // NOI18N
+        btnDetener.setText("Detener Escaneo");
+        btnDetener.setMaximumSize(new java.awt.Dimension(250, 80));
+        btnDetener.setMinimumSize(new java.awt.Dimension(250, 80));
+        btnDetener.setPreferredSize(new java.awt.Dimension(250, 80));
+        btnDetener.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetenerActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnDetener);
+        btnDetener.setBounds(30, 320, 250, 80);
+
+        radioIniciar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        radioIniciar.setText("Registrar Entrada");
+        radioIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioIniciarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(radioIniciar);
+        radioIniciar.setBounds(420, 59, 175, 26);
+
+        radioDetener.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        radioDetener.setText("Registrar Salida");
+        radioDetener.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioDetenerActionPerformed(evt);
+            }
+        });
+        getContentPane().add(radioDetener);
+        radioDetener.setBounds(698, 59, 161, 26);
+
+        txtArea.setColumns(20);
+        txtArea.setRows(5);
+        jScrollPane1.setViewportView(txtArea);
+
+        getContentPane().add(jScrollPane1);
+        jScrollPane1.setBounds(472, 139, 274, 96);
+
+        lblEstatus.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblEstatus.setForeground(new java.awt.Color(255, 0, 0));
+        lblEstatus.setText("ESTATUS DE ACCIONES: NO SE HA SELECCIONADO UNA ACCIÓN");
+        getContentPane().add(lblEstatus);
+        lblEstatus.setBounds(310, 100, 600, 22);
+
+        lblInformacion.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblInformacion.setText("Información del asistente");
+        getContentPane().add(lblInformacion);
+        lblInformacion.setBounds(499, 253, 221, 22);
+
+        lblNombre.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblNombre.setText("Nombre Completo:");
+        getContentPane().add(lblNombre);
+        lblNombre.setBounds(360, 290, 167, 22);
+
+        lblGrado.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblGrado.setText("Grado:");
+        getContentPane().add(lblGrado);
+        lblGrado.setBounds(360, 330, 60, 22);
+
+        lblGrupo.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblGrupo.setText("Grupo:");
+        getContentPane().add(lblGrupo);
+        lblGrupo.setBounds(360, 370, 61, 22);
+
+        lblTurno.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblTurno.setText("Turno:");
+        getContentPane().add(lblTurno);
+        lblTurno.setBounds(360, 410, 58, 22);
+        getContentPane().add(lblNombreRecuperado);
+        lblNombreRecuperado.setBounds(540, 290, 340, 30);
+        getContentPane().add(lblGradoRecuperado);
+        lblGradoRecuperado.setBounds(430, 330, 450, 30);
+        getContentPane().add(lblGrupoRecuperado);
+        lblGrupoRecuperado.setBounds(430, 370, 460, 30);
+        getContentPane().add(lblTurnoRecuperado);
+        lblTurnoRecuperado.setBounds(430, 410, 460, 30);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Seleccione la acción a realizar", "Empezando escaneo...", JOptionPane.INFORMATION_MESSAGE);
+        radioIniciar.setEnabled(true);
+        radioDetener.setEnabled(true);
+        radioIniciar.setVisible(true);
+        radioDetener.setVisible(true);
+        mostrarInformacion();
+        lblEstatus.setText("ESTATUS DE ACCIÓN: ESPERANDO A SELECCIONAR UNA OPCIÓN");
+        lblEstatus.setForeground(Color.YELLOW);
+    }//GEN-LAST:event_btnIniciarActionPerformed
+
+    private void btnDetenerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetenerActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Escaneo detenido", "Acción seleccionada", JOptionPane.INFORMATION_MESSAGE);
+        radioIniciar.setEnabled(false);
+        radioDetener.setEnabled(false);
+        txtArea.setEnabled(false);
+        btnDetener.setEnabled(false);
+        radioIniciar.setSelected(false);
+        radioDetener.setSelected(false);
+        radioIniciar.setVisible(false);
+        radioDetener.setVisible(false);
+        txtArea.setText(null);
+        ocultarInformacion();
+        limpiarInformacion();
+        actualizarEstatus();
+        lblEstatus.setText("ESTATUS DE ACCIONES: ESCANEO DETENIDO");
+        lblEstatus.setForeground(Color.red); 
+    }//GEN-LAST:event_btnDetenerActionPerformed
+
+    private void radioIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioIniciarActionPerformed
+        // TODO add your handling code here:
+        if (radioIniciar.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Registro de entradas seleccionado", "Accion seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            radioDetener.setSelected(false);
+            txtArea.setEnabled(true);
+            btnDetener.setEnabled(true);
+            mostrarInformacion();
+            hacerFocus();
+            actualizarEstatus();
+        }
+    }//GEN-LAST:event_radioIniciarActionPerformed
+
+    private void radioDetenerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDetenerActionPerformed
+        // TODO add your handling code here:
+        if (radioDetener.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Registro de salidas seleccionado", "Acción seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            radioIniciar.setSelected(false);
+            txtArea.setEnabled(true);
+            btnDetener.setEnabled(true);
+            mostrarInformacion();
+            hacerFocus();
+            actualizarEstatus();
+        }
+    }//GEN-LAST:event_radioDetenerActionPerformed
+
+    private void mostrarInformacion() {
+        lblInformacion.setEnabled(true);
+        lblNombre.setEnabled(true);
+        lblGrado.setEnabled(true);
+        lblGrupo.setEnabled(true);
+        lblTurno.setEnabled(true);
+        lblNombreRecuperado.setVisible(true);
+        lblGradoRecuperado.setVisible(true);
+        lblGrupoRecuperado.setVisible(true);
+        lblTurnoRecuperado.setVisible(true);
+    }
+    
+    private void ocultarInformacion() {
+        lblInformacion.setEnabled(false);
+        lblNombre.setEnabled(false);
+        lblGrado.setEnabled(false);
+        lblGrupo.setEnabled(false);
+        lblTurno.setEnabled(false);
+        lblNombreRecuperado.setVisible(false);
+        lblGradoRecuperado.setVisible(false);
+        lblGrupoRecuperado.setVisible(false);
+        lblTurnoRecuperado.setVisible(false);
+    }
+    
+    private void registrarEntrada(){
+        try {
+            System.out.println("Focus ejecutado en el área de texto");
+            asistencia = new AsistenciasDAOJDBC();
+            alumnosRecuperados = new AlumnosDAOJDBC();
+            alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
+            completarInformacion();
+            if(alumno == null){
+                JOptionPane.showMessageDialog(rootPane, "La matrícula "+txtArea.getText().trim()+" no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
+                txtArea.setText(null);
+            }else{
+                System.out.println("Registrando entrada...");
+                registro = asistencia.registrarEntrada(alumno);
+                // Limpiar el JTextArea después de la inserción
+                txtArea.setText(null);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Ha ocurrido un error al registrar la entrada: " + ex);
+        }
+    }
+    
+    private void registrarSalida(){
+        try {
+            asistencia = new AsistenciasDAOJDBC();
+            alumnosRecuperados = new AlumnosDAOJDBC();
+            alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
+            if(alumno == null){
+                JOptionPane.showMessageDialog(rootPane, "La matrícula "+txtArea.getText().trim()+" no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
+                txtArea.setText(null);
+            }
+            System.out.println("Registrando salida...");
+            registro = asistencia.registrarSalida(alumno);
+            if(registro == 0){
+                JOptionPane.showMessageDialog(rootPane, "Este asistente no tiene registro de entrada", "ATENCIÓN", JOptionPane.ERROR_MESSAGE);
+                txtArea.setText(null);
+            }else{
+                // Limpiar el JTextArea después de la inserción
+                txtArea.setText(null);
+                completarInformacion();    
+            }
+        } catch (SQLException ex) {
+            System.out.println("Ha ocurrido un error al registrar la salida: " + ex);
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -76,7 +388,55 @@ public class MenuPrincipal extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void completarInformacion() {
+        
+        lblNombreRecuperado.setText(this.alumno.getNombreCompleto());
+        lblGradoRecuperado.setText(this.alumno.getGrado());
+        lblGrupoRecuperado.setText(this.alumno.getGrupo());
+        lblTurnoRecuperado.setText(this.alumno.getTurno());
+    }
+
+    private void limpiarInformacion() {
+        lblNombreRecuperado.setText("");
+        lblGradoRecuperado.setText("");
+        lblGrupoRecuperado.setText("");
+        lblTurnoRecuperado.setText("");
+    }
+    
+    private void hacerFocus(){
+        txtArea.requestFocus();
+    }
+    
+    private void actualizarEstatus(){
+        if(radioIniciar.isSelected()){
+            lblEstatus.setText("ESTATUS DE ACCIONES: REGISTRAR ENTRADAS"); 
+            lblEstatus.setForeground(Color.BLUE);
+        }else if(radioDetener.isSelected()){
+            lblEstatus.setText("ESTATUS DE ACCIONES: REGISTRAR SALIDAS");
+            lblEstatus.setForeground(Color.BLUE);
+        }
+        
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDetener;
+    private javax.swing.ButtonGroup btnGroupFirst;
+    private javax.swing.JButton btnIniciar;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblEstatus;
+    private javax.swing.JLabel lblGrado;
+    private javax.swing.JLabel lblGradoRecuperado;
+    private javax.swing.JLabel lblGrupo;
+    private javax.swing.JLabel lblGrupoRecuperado;
+    private javax.swing.JLabel lblInformacion;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblNombreRecuperado;
+    private javax.swing.JLabel lblTurno;
+    private javax.swing.JLabel lblTurnoRecuperado;
+    private javax.swing.JRadioButton radioDetener;
+    private javax.swing.JRadioButton radioIniciar;
+    private javax.swing.JTextArea txtArea;
     // End of variables declaration//GEN-END:variables
 }

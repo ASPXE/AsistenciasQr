@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package com.proyecto.view;
 
 import com.proyecto.data.AlumnosDAOJDBC;
@@ -11,6 +8,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
@@ -27,6 +26,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private AlumnosDAOJDBC alumnosRecuperados;
     private AlumnosDTO alumno;
     private int registro;
+    
+    String regex = "^(?i)(1[7-9]|[2-9][0-9])(AL|BL)([0-9]{7})$";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher1 = null;
 
     /**
      * Creates new form MenuPrincipal
@@ -34,7 +37,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
     public MenuPrincipal() {
         alumno = null;
         initComponents();
-        
         btnGroupFirst.add(radioIniciar);
         btnGroupFirst.add(radioDetener);
         radioIniciar.setEnabled(false);
@@ -46,43 +48,30 @@ public class MenuPrincipal extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 if (radioIniciar.isSelected()) {
-                    if(txtArea.getText().trim() != null){
-                        try {
-                            System.out.println("Focus ejecutado en el área de texto");
-                            asistencia = new AsistenciasDAOJDBC();
-                            alumnosRecuperados = new AlumnosDAOJDBC();
-                            alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
-                            System.out.println("Registrando entrada...");
-                            registro = asistencia.registrarEntrada(alumno);
-                            // Limpiar el JTextArea después de la inserción
-                            txtArea.setText("");
-                            completarInformacion();
-                        } catch (SQLException ex) {
-                            System.out.println("Ha ocurrido un error al registrar la entrada: " + ex);
-                        }    
+                    if(!txtArea.getText().trim().isEmpty() && !txtArea.getText().isEmpty()){
+                        matcher1 = pattern.matcher(txtArea.getText().trim());
+                        if(matcher1.matches()){
+                            System.out.println(txtArea.getText().trim()+": "+matcher1.matches());
+                            registrarEntrada();
+                        }else if(!matcher1.matches()){
+                            System.out.println(txtArea.getText().trim()+": "+matcher1.matches());
+                            JOptionPane.showMessageDialog(rootPane, "El dato escaneado no corresponde a una matrícula válida", "Dato inválido", JOptionPane.ERROR_MESSAGE);    
+                            txtArea.setText(null);
+                        }
                     }
                     
                 } else if (radioDetener.isSelected()) {
-                    if(txtArea.getText().trim() != null){
-                        try {
-                            asistencia = new AsistenciasDAOJDBC();
-                            alumnosRecuperados = new AlumnosDAOJDBC();
-                            alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
-                            System.out.println("Registrando salida...");
-                            registro = asistencia.registrarSalida(alumno);
-                            if(registro == 0){
-                                JOptionPane.showMessageDialog(rootPane, "Este asistente no tiene registro de entrada", "ATENCIÓN", JOptionPane.ERROR_MESSAGE);
-                            }
-                            // Limpiar el JTextArea después de la inserción
-                            txtArea.setText("");
-                            completarInformacion();
-                        } catch (SQLException ex) {
-                            System.out.println("Ha ocurrido un error al registrar la salida: " + ex);
+                    if(!txtArea.getText().trim().isEmpty() && !txtArea.getText().isEmpty()){
+                        matcher1 = pattern.matcher(txtArea.getText().trim());
+                        if(matcher1.matches()){
+                            System.out.println(txtArea.getText().trim()+": "+matcher1.matches());
+                            registrarSalida();
+                        }else if(!matcher1.matches()){
+                            JOptionPane.showMessageDialog(rootPane, "El dato escaneado no corresponde a una matrícula válida", "Dato inválido", JOptionPane.ERROR_MESSAGE);
+                            txtArea.setText(null);
                         }    
                     }
-                    
                 }
-
             }
         });
 
@@ -148,6 +137,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
         btnIniciar.setText("Iniciar Escaneo");
         btnIniciar.setPreferredSize(new java.awt.Dimension(250, 80));
         btnIniciar.setVerifyInputWhenFocusTarget(false);
+        btnIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIniciarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnIniciar);
         btnIniciar.setBounds(30, 150, 250, 80);
 
@@ -157,16 +151,31 @@ public class MenuPrincipal extends javax.swing.JFrame {
         btnDetener.setMaximumSize(new java.awt.Dimension(250, 80));
         btnDetener.setMinimumSize(new java.awt.Dimension(250, 80));
         btnDetener.setPreferredSize(new java.awt.Dimension(250, 80));
+        btnDetener.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetenerActionPerformed(evt);
+            }
+        });
         getContentPane().add(btnDetener);
         btnDetener.setBounds(30, 320, 250, 80);
 
         radioIniciar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         radioIniciar.setText("Registrar Entrada");
+        radioIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioIniciarActionPerformed(evt);
+            }
+        });
         getContentPane().add(radioIniciar);
         radioIniciar.setBounds(420, 59, 175, 26);
 
         radioDetener.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         radioDetener.setText("Registrar Salida");
+        radioDetener.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioDetenerActionPerformed(evt);
+            }
+        });
         getContentPane().add(radioDetener);
         radioDetener.setBounds(698, 59, 161, 26);
 
@@ -219,6 +228,132 @@ public class MenuPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Seleccione la acción a realizar", "Empezando escaneo...", JOptionPane.INFORMATION_MESSAGE);
+        radioIniciar.setEnabled(true);
+        radioDetener.setEnabled(true);
+        radioIniciar.setVisible(true);
+        radioDetener.setVisible(true);
+        mostrarInformacion();
+        lblEstatus.setText("ESTATUS DE ACCIÓN: ESPERANDO A SELECCIONAR UNA OPCIÓN");
+        lblEstatus.setForeground(Color.YELLOW);
+    }//GEN-LAST:event_btnIniciarActionPerformed
+
+    private void btnDetenerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetenerActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Escaneo detenido", "Acción seleccionada", JOptionPane.INFORMATION_MESSAGE);
+        radioIniciar.setEnabled(false);
+        radioDetener.setEnabled(false);
+        txtArea.setEnabled(false);
+        btnDetener.setEnabled(false);
+        radioIniciar.setSelected(false);
+        radioDetener.setSelected(false);
+        radioIniciar.setVisible(false);
+        radioDetener.setVisible(false);
+        txtArea.setText(null);
+        ocultarInformacion();
+        limpiarInformacion();
+        actualizarEstatus();
+        lblEstatus.setText("ESTATUS DE ACCIONES: ESCANEO DETENIDO");
+        lblEstatus.setForeground(Color.red); 
+    }//GEN-LAST:event_btnDetenerActionPerformed
+
+    private void radioIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioIniciarActionPerformed
+        // TODO add your handling code here:
+        if (radioIniciar.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Registro de entradas seleccionado", "Accion seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            radioDetener.setSelected(false);
+            txtArea.setEnabled(true);
+            btnDetener.setEnabled(true);
+            mostrarInformacion();
+            hacerFocus();
+            actualizarEstatus();
+        }
+    }//GEN-LAST:event_radioIniciarActionPerformed
+
+    private void radioDetenerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDetenerActionPerformed
+        // TODO add your handling code here:
+        if (radioDetener.isSelected()) {
+            JOptionPane.showMessageDialog(this, "Registro de salidas seleccionado", "Acción seleccionada", JOptionPane.INFORMATION_MESSAGE);
+            radioIniciar.setSelected(false);
+            txtArea.setEnabled(true);
+            btnDetener.setEnabled(true);
+            mostrarInformacion();
+            hacerFocus();
+            actualizarEstatus();
+        }
+    }//GEN-LAST:event_radioDetenerActionPerformed
+
+    private void mostrarInformacion() {
+        lblInformacion.setEnabled(true);
+        lblNombre.setEnabled(true);
+        lblGrado.setEnabled(true);
+        lblGrupo.setEnabled(true);
+        lblTurno.setEnabled(true);
+        lblNombreRecuperado.setEnabled(true);
+        lblGradoRecuperado.setEnabled(true);
+        lblGrupoRecuperado.setEnabled(true);
+        lblTurnoRecuperado.setEnabled(true);
+    }
+    
+    private void ocultarInformacion() {
+        lblInformacion.setEnabled(false);
+        lblNombre.setEnabled(false);
+        lblGrado.setEnabled(false);
+        lblGrupo.setEnabled(false);
+        lblTurno.setEnabled(false);
+        lblNombreRecuperado.setEnabled(false);
+        lblGradoRecuperado.setEnabled(false);
+        lblGrupoRecuperado.setEnabled(false);
+        lblTurnoRecuperado.setEnabled(false);
+    }
+    
+    private void registrarEntrada(){
+        try {
+            System.out.println("Focus ejecutado en el área de texto");
+            asistencia = new AsistenciasDAOJDBC();
+            alumnosRecuperados = new AlumnosDAOJDBC();
+            alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
+            if(alumno == null){
+                JOptionPane.showMessageDialog(rootPane, "La matrícula "+txtArea.getText().trim()+" no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
+                txtArea.setText(null);
+            }else{
+                System.out.println("Registrando entrada...");
+                registro = asistencia.registrarEntrada(alumno);
+                // Limpiar el JTextArea después de la inserción
+                txtArea.setText(null);
+                completarInformacion();    
+            }
+        } catch (SQLException ex) {
+            System.out.println("Ha ocurrido un error al registrar la entrada: " + ex);
+        }
+    }
+    
+    private void registrarSalida(){
+        try {
+            asistencia = new AsistenciasDAOJDBC();
+            alumnosRecuperados = new AlumnosDAOJDBC();
+            alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
+            if(alumno == null){
+                JOptionPane.showMessageDialog(rootPane, "La matrícula "+txtArea.getText().trim()+" no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
+                txtArea.setText(null);
+            }
+            System.out.println("Registrando salida...");
+            registro = asistencia.registrarSalida(alumno);
+            if(registro == 0){
+                JOptionPane.showMessageDialog(rootPane, "Este asistente no tiene registro de entrada", "ATENCIÓN", JOptionPane.ERROR_MESSAGE);
+                txtArea.setText(null);
+            }else{
+                // Limpiar el JTextArea después de la inserción
+                txtArea.setText(null);
+                completarInformacion();    
+            }
+        } catch (SQLException ex) {
+            System.out.println("Ha ocurrido un error al registrar la salida: " + ex);
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */

@@ -217,13 +217,13 @@ public class MenuPrincipal extends javax.swing.JFrame {
         getContentPane().add(lblTurno);
         lblTurno.setBounds(360, 410, 58, 22);
         getContentPane().add(lblNombreRecuperado);
-        lblNombreRecuperado.setBounds(540, 290, 340, 0);
+        lblNombreRecuperado.setBounds(540, 290, 340, 30);
         getContentPane().add(lblGradoRecuperado);
-        lblGradoRecuperado.setBounds(430, 330, 450, 0);
+        lblGradoRecuperado.setBounds(430, 330, 450, 30);
         getContentPane().add(lblGrupoRecuperado);
-        lblGrupoRecuperado.setBounds(430, 370, 460, 0);
+        lblGrupoRecuperado.setBounds(430, 370, 460, 30);
         getContentPane().add(lblTurnoRecuperado);
-        lblTurnoRecuperado.setBounds(430, 410, 460, 0);
+        lblTurnoRecuperado.setBounds(430, 410, 460, 30);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -291,10 +291,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
         lblGrado.setEnabled(true);
         lblGrupo.setEnabled(true);
         lblTurno.setEnabled(true);
-        lblNombreRecuperado.setEnabled(true);
-        lblGradoRecuperado.setEnabled(true);
-        lblGrupoRecuperado.setEnabled(true);
-        lblTurnoRecuperado.setEnabled(true);
+        lblNombreRecuperado.setVisible(true);
+        lblGradoRecuperado.setVisible(true);
+        lblGrupoRecuperado.setVisible(true);
+        lblTurnoRecuperado.setVisible(true);
     }
     
     private void ocultarInformacion() {
@@ -303,10 +303,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
         lblGrado.setEnabled(false);
         lblGrupo.setEnabled(false);
         lblTurno.setEnabled(false);
-        lblNombreRecuperado.setEnabled(false);
-        lblGradoRecuperado.setEnabled(false);
-        lblGrupoRecuperado.setEnabled(false);
-        lblTurnoRecuperado.setEnabled(false);
+        lblNombreRecuperado.setVisible(false);
+        lblGradoRecuperado.setVisible(false);
+        lblGrupoRecuperado.setVisible(false);
+        lblTurnoRecuperado.setVisible(false);
     }
     
     private void registrarEntrada(){
@@ -315,6 +315,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
             asistencia = new AsistenciasDAOJDBC();
             alumnosRecuperados = new AlumnosDAOJDBC();
             alumno = alumnosRecuperados.selectOne(txtArea.getText().trim());
+            completarInformacion();
             if(alumno == null){
                 JOptionPane.showMessageDialog(rootPane, "La matrícula "+txtArea.getText().trim()+" no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
                 txtArea.setText(null);
@@ -323,7 +324,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 registro = asistencia.registrarEntrada(alumno);
                 // Limpiar el JTextArea después de la inserción
                 txtArea.setText(null);
-                completarInformacion();    
             }
         } catch (SQLException ex) {
             System.out.println("Ha ocurrido un error al registrar la entrada: " + ex);
@@ -390,7 +390,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
     
     private void completarInformacion() {
-        lblNombreRecuperado.setText(this.alumno.getNombre());
+        
+        lblNombreRecuperado.setText(this.alumno.getNombreCompleto());
         lblGradoRecuperado.setText(this.alumno.getGrado());
         lblGrupoRecuperado.setText(this.alumno.getGrupo());
         lblTurnoRecuperado.setText(this.alumno.getTurno());

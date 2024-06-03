@@ -47,7 +47,7 @@ public class AsistenciasDAOJDBC {
         try{
             conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.conectar();
             stmt = conn.prepareStatement(AsistenciasDAOJDBC.SQL_INSERT_ENTRADA);
-            stmt.setString(1, alumno.getNombre());
+            stmt.setString(1, alumno.getNombreCompleto());
             stmt.setString(2, alumno.getMatricula());
             stmt.setString(3, alumno.getGrado());
             stmt.setString(4, alumno.getGrupo());

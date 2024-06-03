@@ -8,7 +8,7 @@ package com.proyecto.objects;
 public class AlumnosDTO {
     
     private int idAlumnos;
-    private String nombre;
+    private String nombreCompleto;
     private String matricula;
     private String grado;
     private String grupo;
@@ -21,10 +21,10 @@ public class AlumnosDTO {
     }
     
     // Constructor con todos las variables
-    public AlumnosDTO(int idAlumnos, String nombre, String matricula, String grado, String grupo,
+    public AlumnosDTO(int idAlumnos, String nombreCompleto, String matricula, String grado, String grupo,
             String turno){
         this.idAlumnos = idAlumnos;
-        this.nombre = nombre;
+        this.nombreCompleto = nombreCompleto;
         this.matricula = matricula;
         this.grado = grado;
         this.grupo = grupo;
@@ -51,12 +51,12 @@ public class AlumnosDTO {
         this.idAlumnos = idAlumnos;
     }
 
-    public String getNombre() {
-        return this.nombre;
+    public String getNombreCompleto() {
+        return this.nombreCompleto;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombreCompleto(String nombreCompleto) {
+        this.nombreCompleto = nombreCompleto;
     }
 
     public String getMatricula() {
@@ -98,7 +98,7 @@ public class AlumnosDTO {
         StringBuilder sb = new StringBuilder();
         sb.append("AlumnosDTO{");
         sb.append("idAlumnos=").append(idAlumnos);
-        sb.append(", nombre=").append(nombre);
+        sb.append(", nombreCompleto=").append(nombreCompleto);
         sb.append(", matricula=").append(matricula);
         sb.append(", grado=").append(grado);
         sb.append(", grupo=").append(grupo);

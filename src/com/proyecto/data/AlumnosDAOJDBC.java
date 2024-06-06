@@ -33,6 +33,7 @@ public class AlumnosDAOJDBC {
     private static final String SQL_INSERT_ALL = "INSERT INTO Alumnos(nombreCompleto, matricula, grado, grupo, turno) VALUES(?,"
             + "?, ?, ?, ?)";
     private static final String SQL_DELETE_ONE = "DELETE FROM Alumnos WHERE matricula = ?";
+    private static final String SQL_TRUNCATE_ALUMNOS = "TRUNCATE TABLE Alumnos";
     
     public List<AlumnosDTO> selectAll() throws SQLException{
         
@@ -162,6 +163,26 @@ public class AlumnosDAOJDBC {
         
         return registros;
         
+    }
+    
+    public int truncateAlumnos() throws SQLException{
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        int registros = 0;
+        
+        try{
+            conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.conectar();
+            stmt = conn.prepareStatement(SQL_TRUNCATE_ALUMNOS);
+            registros = stmt.executeUpdate();
+        }catch(SQLException e){
+            System.out.println("Ha ocurrido un error al tratar de truncar la tabla de Alumnos: "+e);
+        }finally{
+            Conexion.cerrar(stmt);
+            if(this.conexionTransaccional == null){
+                Conexion.cerrar(conn);
+            }
+        }
+        return registros;
     }
     
 }

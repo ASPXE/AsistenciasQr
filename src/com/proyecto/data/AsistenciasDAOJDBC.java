@@ -32,6 +32,7 @@ public class AsistenciasDAOJDBC {
         "WHERE matricula = ? " +
         "AND horaSalida IS NULL " +
         "AND DATE(horaEntrada) = CURDATE()";
+    private static final String SQL_TRUNCATE_ASISTENCIAS = "TRUNCATE TABLE Asistencias";
     
     public int registrarEntrada(AlumnosDTO alumno) throws SQLException{
         
@@ -94,5 +95,6 @@ public class AsistenciasDAOJDBC {
         return registros;
         
     }
+    
     
 }

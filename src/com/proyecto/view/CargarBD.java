@@ -4,6 +4,22 @@
  */
 package com.proyecto.view;
 
+import com.proyecto.data.AlumnosDAOJDBC;
+import com.proyecto.data.AsistenciasDAOJDBC;
+import com.proyecto.objects.AlumnosDTO;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import jdk.internal.org.jline.utils.ShutdownHooks.Task;
+
 /**
  *
  * @author aspxe
@@ -13,7 +29,12 @@ public class CargarBD extends javax.swing.JPanel {
     /**
      * Creates new form cargarBD
      */
+    
+    private AlumnosDAOJDBC alumnosBD = null;
+    private AlumnosDTO alumno = null;
+    
     public CargarBD() {
+        
         initComponents();
     }
 
@@ -26,24 +47,166 @@ public class CargarBD extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        btnCargarBase = new javax.swing.JButton();
+        lblPorcentaje = new javax.swing.JLabel();
+        barraProgreso = new javax.swing.JProgressBar();
+
         setMaximumSize(new java.awt.Dimension(900, 455));
         setMinimumSize(new java.awt.Dimension(900, 455));
         setName(""); // NOI18N
         setPreferredSize(new java.awt.Dimension(900, 455));
 
+        btnCargarBase.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        btnCargarBase.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/base.png")); // NOI18N
+        btnCargarBase.setText("Cargar BD");
+        btnCargarBase.setMaximumSize(new java.awt.Dimension(250, 80));
+        btnCargarBase.setMinimumSize(new java.awt.Dimension(250, 80));
+        btnCargarBase.setPreferredSize(new java.awt.Dimension(250, 80));
+        btnCargarBase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarBaseActionPerformed(evt);
+            }
+        });
+
+        lblPorcentaje.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
+        lblPorcentaje.setText("PORCENTAJE DE AVANCE");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 900, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(48, 48, 48)
+                .addComponent(btnCargarBase, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(463, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(144, 144, 144))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lblPorcentaje)
+                        .addGap(171, 171, 171))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 455, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(32, 32, 32)
+                .addComponent(lblPorcentaje)
+                .addGap(38, 38, 38)
+                .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31)
+                .addComponent(btnCargarBase, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(211, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnCargarBaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarBaseActionPerformed
+        int opcion = JOptionPane.showConfirmDialog(this, "El proceso eliminará la información existente de Alumnos y Asistencias. ¿Desea continuar?", "AVISO", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (opcion == JOptionPane.YES_OPTION) {
+            new Task().execute();
+        }
+        
+    }//GEN-LAST:event_btnCargarBaseActionPerformed
+
+    
+    
+    private class Task extends SwingWorker<Void, Integer> {
+        protected Void doInBackground() throws Exception {
+            alumnosBD = new AlumnosDAOJDBC();
+            int registros = alumnosBD.truncateAlumnos();
+            CargarCSV();
+            return null;
+        }
+
+        protected void process(java.util.List<Integer> chunks) {
+            for (int progress : chunks) {
+                barraProgreso.setValue(progress);
+                lblPorcentaje.setText("PORCENTAJE DE AVANCE: " + progress + "%");
+            }
+        }
+
+        private void CargarCSV() throws FileNotFoundException, IOException, SQLException {
+            File archivo = elegirRuta();
+            alumno = new AlumnosDTO();
+            alumnosBD = new AlumnosDAOJDBC();
+            if (archivo == null) {
+                return;
+            }
+
+            String nombreCompleto = "", matricula = "", grado = "", grupo = "", turno = "";
+
+            FileReader fr = new FileReader(archivo);
+            BufferedReader br = new BufferedReader(fr);
+
+            String linea;
+            int lineCount = 0;
+            int totalLines = (int) br.lines().count(); // Obtener el total de líneas
+            br.close();
+
+            fr = new FileReader(archivo);
+            br = new BufferedReader(fr);
+
+            while ((linea = br.readLine()) != null) {
+                String[] datos = linea.split(",");
+                if (datos.length == 5) {
+                    nombreCompleto = datos[0];
+                    matricula = datos[1];
+                    grado = datos[2];
+                    grupo = datos[3];
+                    turno = datos[4];
+
+                    alumno.setNombreCompleto(nombreCompleto);
+                    alumno.setMatricula(matricula);
+                    alumno.setGrado(grado);
+                    alumno.setGrupo(grupo);
+                    alumno.setTurno(turno);
+
+                    alumnosBD.insertAll(alumno);
+
+                    lineCount++;
+                    int progress = (int) ((lineCount / (double) totalLines) * 100);
+                    publish(progress);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Formato de línea incorrecto: " + linea, "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            br.close();
+            fr.close();
+        }
+    }    
+    
+    
+    private static File elegirRuta() {
+        // Crear un JFileChooser
+        JFileChooser fileChooser = new JFileChooser();
+        // Configurar el JFileChooser para solo seleccionar archivos
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        // Agregar un filtro para archivos CSV
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos CSV", "csv"));
+
+        // Mostrar el diálogo de selección de archivos
+        int result = fileChooser.showOpenDialog(null);
+
+        // Procesar el resultado de la selección
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            // Verificar que el archivo tenga la extensión .csv
+            if (selectedFile.isFile() && selectedFile.getName().toLowerCase().endsWith(".csv")) {
+                return selectedFile;
+            } else {
+                JOptionPane.showMessageDialog(null, "Debe seleccionar un archivo CSV.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return null;
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JProgressBar barraProgreso;
+    private javax.swing.JButton btnCargarBase;
+    private javax.swing.JLabel lblPorcentaje;
     // End of variables declaration//GEN-END:variables
 }

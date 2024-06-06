@@ -15,5 +15,5 @@ public interface AlumnosDAO {
     public AlumnosDTO selectOne(String matricula) throws SQLException;
     public int insertAll(AlumnosDTO alumno) throws SQLException;
     public int deleteOne(AlumnosDTO alumno) throws SQLException;
-    
+    public int truncateAlumnos() throws SQLException;
 }

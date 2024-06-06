@@ -1,7 +1,11 @@
+/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/view/CargarBD.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/objects/AlumnosDTO.java
+/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/view/Asistencias.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/conexion/Conexion.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/data/AlumnosDAO.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/data/AsistenciasDAO.java
+/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/objects/EncriptadorDTO.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/data/AsistenciasDAOJDBC.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/view/MenuPrincipal.java
+/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/view/GenerarQrs.java
 /home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/com/proyecto/data/AlumnosDAOJDBC.java

@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
+
 package com.proyecto.view;
 
 import com.google.zxing.BarcodeFormat;
@@ -13,10 +10,13 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.proyecto.data.AlumnosDAOJDBC;
 import com.proyecto.objects.AlumnosDTO;
 import com.proyecto.objects.EncriptadorDTO;
-import static java.awt.SystemColor.text;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -124,9 +125,7 @@ public class GenerarQrs extends javax.swing.JPanel {
     
     private void generarQrs(File ruta) throws SQLException, WriterException, Exception{
         int alto = 400, ancho = 400;
-        
         EncriptadorDTO encriptar = new EncriptadorDTO();
-        
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
@@ -142,26 +141,35 @@ public class GenerarQrs extends javax.swing.JPanel {
                 String turno = alumno.getTurno();
                 String grado = alumno.getGrado();
                 String grupo = alumno.getGrupo();
-                
-                // Encriptando la matrícula
+
                 matricula = encriptar.encrypt(matricula);
                 System.out.println(matricula);
 
                 BitMatrix bitMatrix = qrCodeWriter.encode(matricula, BarcodeFormat.QR_CODE, ancho, alto, hints);
+                BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+                BufferedImage combined = new BufferedImage(ancho, alto + 50, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = combined.createGraphics();
+                g.drawImage(qrImage, 0, 0, null);
+                g.setFont(new Font("Arial", Font.PLAIN, 20));
+                g.setColor(Color.BLACK);
+                FontMetrics fm = g.getFontMetrics();
+                int x = (combined.getWidth() - fm.stringWidth(nombre)) / 2;
+                g.drawString(nombre, x, alto + 30);
+                g.dispose();
 
                 Path directorio = Paths.get(ruta.getAbsolutePath(), turno, grado, grupo);
                 Files.createDirectories(directorio);
 
                 Path path = directorio.resolve("qrcode_" + nombre + ".png");
-                MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+                ImageIO.write(combined, "PNG", path.toFile());
 
                 System.out.println("QR Code generado en: " + path.toString());
             }
         } catch (IOException e) {
             System.out.println("Ha ocurrido un error al tratar de crear el QR: " + e);
         }
-        
-        
+
     }
     
     private void ejecutarProceso() throws SQLException, WriterException, Exception{

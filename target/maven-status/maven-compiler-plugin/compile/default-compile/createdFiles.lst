@@ -3,8 +3,8 @@ com/proyecto/view/MenuPrincipal$1.class
 com/proyecto/view/Asistencias$3.class
 com/proyecto/view/Asistencias$5.class
 com/proyecto/view/CargarBD$Task.class
-com/proyecto/view/GenerarQrs.class
 com/proyecto/data/AsistenciasDAOJDBC.class
+com/proyecto/view/GenerarQrs.class
 com/proyecto/view/CargarBD$1.class
 com/proyecto/view/Asistencias.class
 com/proyecto/conexion/Conexion.class
@@ -19,6 +19,6 @@ com/proyecto/view/MenuPrincipal.class
 com/proyecto/view/Asistencias$4.class
 com/proyecto/view/Asistencias$6.class
 com/proyecto/view/GenerarQrs$1.class
-com/proyecto/view/Asistencias$1.class
 com/proyecto/data/AlumnosDAO.class
+com/proyecto/view/Asistencias$1.class
 com/proyecto/view/MenuPrincipal$3.class

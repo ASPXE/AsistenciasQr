@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -38,6 +39,7 @@ import javax.swing.JOptionPane;
 public class GenerarQrs extends javax.swing.JPanel {
     
     private String ruta;
+    private int totalImages;
 
     /**
      * Creates new form generarQrs
@@ -56,14 +58,15 @@ public class GenerarQrs extends javax.swing.JPanel {
     private void initComponents() {
 
         btnGenerarQrs = new javax.swing.JButton();
-        lblMensaje = new javax.swing.JLabel();
+        lblPorcentaje = new javax.swing.JLabel();
+        barraProgreso = new javax.swing.JProgressBar();
 
         setMaximumSize(new java.awt.Dimension(900, 455));
         setMinimumSize(new java.awt.Dimension(900, 455));
         setPreferredSize(new java.awt.Dimension(900, 455));
 
         btnGenerarQrs.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        btnGenerarQrs.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/codigo-qr.png")); // NOI18N
+        btnGenerarQrs.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/AsistenciasQr/src/main/resources/images/codigo-qr.png")); // NOI18N
         btnGenerarQrs.setText("Generar QR");
         btnGenerarQrs.setMaximumSize(new java.awt.Dimension(250, 80));
         btnGenerarQrs.setMinimumSize(new java.awt.Dimension(250, 80));
@@ -74,31 +77,35 @@ public class GenerarQrs extends javax.swing.JPanel {
             }
         });
 
-        lblMensaje.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        lblMensaje.setForeground(new java.awt.Color(255, 0, 0));
-        lblMensaje.setText("HAGA CLICK EN EL BOTÓN PARA GENERAR LOS QR'S");
+        lblPorcentaje.setFont(new java.awt.Font("sansserif", 1, 18)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(322, 322, 322)
-                .addComponent(btnGenerarQrs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(217, Short.MAX_VALUE)
-                .addComponent(lblMensaje)
-                .addGap(201, 201, 201))
+                .addContainerGap(303, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lblPorcentaje, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(392, 392, 392))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(274, 274, 274))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(btnGenerarQrs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(315, 315, 315))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(114, 114, 114)
-                .addComponent(lblMensaje)
-                .addGap(48, 48, 48)
+                .addGap(79, 79, 79)
+                .addComponent(lblPorcentaje, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
                 .addComponent(btnGenerarQrs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(191, Short.MAX_VALUE))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -123,28 +130,48 @@ public class GenerarQrs extends javax.swing.JPanel {
         return null;
     }
     
-    private void generarQrs(File ruta) throws SQLException, WriterException, Exception{
-        int alto = 400, ancho = 400;
-        EncriptadorDTO encriptar = new EncriptadorDTO();
-        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        Map<EncodeHintType, Object> hints = new HashMap<>();
-        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+    
+    private void btnGenerarQrsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarQrsActionPerformed
+        
+        int opcion = JOptionPane.showConfirmDialog(this, "El proceso de generación de Qr's puede tomar unos minutos. ¿Desea continuar?", "AVISO", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (opcion == JOptionPane.YES_OPTION) {
+            new Task().execute();
+        }
+    }//GEN-LAST:event_btnGenerarQrsActionPerformed
 
-        AlumnosDAOJDBC alumnos = new AlumnosDAOJDBC();
+    private class Task extends SwingWorker<Void, Integer> {
+        @Override
+        protected Void doInBackground() throws Exception {
+            File rutaSeleccionada = elegirRuta();
+            if (rutaSeleccionada != null) {
+                generarQrs(rutaSeleccionada);
+            } else {
+                JOptionPane.showMessageDialog(GenerarQrs.this, "No se encontró la ruta", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+            return null;
+        }
 
-        try {
-            List<AlumnosDTO> alumnosRecuperados = new ArrayList<>();
-            alumnosRecuperados = alumnos.selectAll();
-            for (AlumnosDTO alumno : alumnosRecuperados) {
+        private void generarQrs(File ruta) throws SQLException, WriterException, IOException, Exception {
+            int alto = 400, ancho = 400;
+            EncriptadorDTO encriptar = new EncriptadorDTO();
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+
+            AlumnosDAOJDBC alumnos = new AlumnosDAOJDBC();
+            List<AlumnosDTO> alumnosRecuperados = alumnos.selectAll();
+
+            totalImages = alumnosRecuperados.size(); // Establecer el total de imágenes a generar
+
+            for (int i = 0; i < totalImages; i++) {
+                AlumnosDTO alumno = alumnosRecuperados.get(i);
                 String nombre = alumno.getNombreCompleto();
-                String matricula = alumno.getMatricula();
+                String matricula = encriptar.encrypt(alumno.getMatricula());
                 String turno = alumno.getTurno();
                 String grado = alumno.getGrado();
                 String grupo = alumno.getGrupo();
-
-                matricula = encriptar.encrypt(matricula);
-                System.out.println(matricula);
-
+                
+                System.out.println("Matricula : "+matricula);
                 BitMatrix bitMatrix = qrCodeWriter.encode(matricula, BarcodeFormat.QR_CODE, ancho, alto, hints);
                 BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 
@@ -164,45 +191,29 @@ public class GenerarQrs extends javax.swing.JPanel {
                 Path path = directorio.resolve("qrcode_" + nombre + ".png");
                 ImageIO.write(combined, "PNG", path.toFile());
 
-                System.out.println("QR Code generado en: " + path.toString());
-            }
-        } catch (IOException e) {
-            System.out.println("Ha ocurrido un error al tratar de crear el QR: " + e);
-        }
-
-    }
-    
-    private void ejecutarProceso() throws SQLException, WriterException, Exception{
-         File rutaSeleccionada = elegirRuta();
-
-        if (rutaSeleccionada != null) {
-            System.out.println("Ruta seleccionada: " + rutaSeleccionada.toString());
-            generarQrs(rutaSeleccionada);
-        } else {
-            System.out.println("No se encontró la ruta");
-            JOptionPane.showMessageDialog(this, "No se encontró la ruta", "ERROR", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    private void btnGenerarQrsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarQrsActionPerformed
-        
-        int opcion = JOptionPane.showConfirmDialog(this, "El proceso de generación de Qr's puede tomar unos minutos. ¿Desea continuar?", "AVISO", JOptionPane.YES_NO_CANCEL_OPTION);
-        if (opcion == JOptionPane.YES_OPTION) {
-            try {
-                ejecutarProceso();
-            } catch (SQLException ex) {
-                Logger.getLogger(GenerarQrs.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (WriterException ex) {
-                Logger.getLogger(GenerarQrs.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                Logger.getLogger(GenerarQrs.class.getName()).log(Level.SEVERE, null, ex);
+                int progress = (int) ((i + 1) / (double) totalImages * 100);
+                publish(progress);
             }
         }
-    }//GEN-LAST:event_btnGenerarQrsActionPerformed
 
+        @Override
+        protected void process(java.util.List<Integer> chunks) {
+            for (int progress : chunks) {
+                barraProgreso.setValue(progress);
+                lblPorcentaje.setText(progress + "%");
+            }
+        }
+
+        @Override
+        protected void done() {
+            JOptionPane.showMessageDialog(GenerarQrs.this, "Proceso completado", "INFORMACIÓN", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JProgressBar barraProgreso;
     private javax.swing.JButton btnGenerarQrs;
-    private javax.swing.JLabel lblMensaje;
+    private javax.swing.JLabel lblPorcentaje;
     // End of variables declaration//GEN-END:variables
 }

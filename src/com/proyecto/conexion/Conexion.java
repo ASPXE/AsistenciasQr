@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class Conexion {
     
     // Cambiar esta linea ya que va a ser local
-    private static final String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/DERECHO_2024?useSSL=false&useTimeZone=true&serverTimeZone=UTC"
+    private static final String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/Derecho?useSSL=false&useTimeZone=true&serverTimeZone=UTC"
             + "&allowPublicKeyRetrieval=true";
 
     private static final String JDBC_USER = "root";

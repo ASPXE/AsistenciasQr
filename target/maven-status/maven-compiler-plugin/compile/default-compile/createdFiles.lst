@@ -17,8 +17,10 @@ com/proyecto/data/AsistenciasDAO.class
 com/proyecto/objects/EncriptadorDTO.class
 com/proyecto/view/MenuPrincipal.class
 com/proyecto/view/Asistencias$4.class
+com/proyecto/view/GenerarQrs$Task.class
 com/proyecto/view/Asistencias$6.class
 com/proyecto/view/GenerarQrs$1.class
 com/proyecto/data/AlumnosDAO.class
 com/proyecto/view/Asistencias$1.class
 com/proyecto/view/MenuPrincipal$3.class
+com/proyecto/objects/AsistenciasDTO.class

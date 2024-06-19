@@ -57,7 +57,7 @@ public class CargarBD extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(900, 455));
 
         btnCargarBase.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        btnCargarBase.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/base.png")); // NOI18N
+        btnCargarBase.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/AsistenciasQr/src/main/resources/images/base.png")); // NOI18N
         btnCargarBase.setText("Cargar BD");
         btnCargarBase.setMaximumSize(new java.awt.Dimension(250, 80));
         btnCargarBase.setMinimumSize(new java.awt.Dimension(250, 80));
@@ -69,36 +69,35 @@ public class CargarBD extends javax.swing.JPanel {
         });
 
         lblPorcentaje.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        lblPorcentaje.setText("PORCENTAJE DE AVANCE");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addGap(317, 317, 317)
                 .addComponent(btnCargarBase, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(463, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(144, 144, 144))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(lblPorcentaje)
-                        .addGap(171, 171, 171))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(302, 302, 302)
+                        .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(346, 346, 346)
+                        .addComponent(lblPorcentaje, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(305, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(32, 32, 32)
-                .addComponent(lblPorcentaje)
-                .addGap(38, 38, 38)
-                .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31)
+                .addComponent(lblPorcentaje, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(barraProgreso, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
                 .addComponent(btnCargarBase, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(211, Short.MAX_VALUE))
+                .addContainerGap(224, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -123,7 +122,7 @@ public class CargarBD extends javax.swing.JPanel {
         protected void process(java.util.List<Integer> chunks) {
             for (int progress : chunks) {
                 barraProgreso.setValue(progress);
-                lblPorcentaje.setText("PORCENTAJE DE AVANCE: " + progress + "%");
+                lblPorcentaje.setText(progress + "%");
             }
         }
 
@@ -202,6 +201,8 @@ public class CargarBD extends javax.swing.JPanel {
         }
         return null;
     }
+    
+    
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

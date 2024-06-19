@@ -7,11 +7,13 @@ package com.proyecto.view;
 import com.proyecto.data.AlumnosDAOJDBC;
 import com.proyecto.data.AsistenciasDAOJDBC;
 import com.proyecto.objects.AlumnosDTO;
+import com.proyecto.objects.AsistenciasDTO;
 import com.proyecto.objects.EncriptadorDTO;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -27,17 +29,16 @@ import javax.swing.event.DocumentListener;
  */
 public class Asistencias extends javax.swing.JPanel {
     
-    private Timer timer;
-    private AsistenciasDAOJDBC asistencia;
-    private AlumnosDAOJDBC alumnosRecuperados;
+    private final Timer timer;
+    private final Pattern pattern;
+    private AlumnosDAOJDBC alumnosDAO;
+    private AsistenciasDAOJDBC asistenciaDAO;
     private AlumnosDTO alumno;
-    private int registro;
-    private EncriptadorDTO desencriptar;
+    private final EncriptadorDTO desencriptar;
     private String matricula;
-    
-    String regex = "^(?i)(1[7-9]|[2-9][0-9])(AL|BL)([0-9]{7})$";
-    Pattern pattern = Pattern.compile(regex);
-    Matcher matcher1 = null;
+
+    // Regular expression for valid matricula
+    private static final String REGEX_MATRICULA = "^(?i)(1[7-9]|[2-9][0-9])(AL|BL)([0-9]{7})$";
 
     /**
      * Creates new form Asistencias
@@ -45,80 +46,74 @@ public class Asistencias extends javax.swing.JPanel {
     public Asistencias() throws Exception {
         alumno = null;
         desencriptar = new EncriptadorDTO();
+        pattern = Pattern.compile(REGEX_MATRICULA);
         initComponents();
+        initializeComponents();
+
+        timer = new Timer(200, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    handleTimerAction();
+                } catch (Exception ex) {
+                    Logger.getLogger(Asistencias.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+        txtArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                timer.restart();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                timer.restart();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Not needed for plain-text components
+            }
+        });
+    }
+    
+    private void initializeComponents() {
         btnGrupo1.add(radioIniciar);
         btnGrupo1.add(radioDetener);
         radioIniciar.setEnabled(false);
         radioDetener.setEnabled(false);
         btnDetener.setEnabled(false);
         txtArea.setEnabled(false);
-        timer = new Timer(200, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleTimerAction();
-            }
-        });
-
-        // Agregar un DocumentListener al JTextArea
-        txtArea.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                // Método llamado cuando se inserta texto en el JTextArea
-                // Reiniciar el temporizador en cada cambio para evitar ejecuciones prematuras
-                timer.restart();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                // Método llamado cuando se elimina texto en el JTextArea
-                // Reiniciar el temporizador en cada cambio para evitar ejecuciones prematuras
-                timer.restart();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                // Método llamado cuando hay cambios que no son insertar o eliminar texto
-            }
-        });
     }
     
-    private void handleTimerAction() {
-        if (radioIniciar.isSelected() || radioDetener.isSelected()) {
-            if (!txtArea.getText().trim().isEmpty()) {
-                try {
-                    if (desencriptar != null) {
-                        matricula = desencriptar.decrypt(txtArea.getText().trim());
-                    } else {
-                        throw new NullPointerException("Desencriptar object is null");
-                    }
-                    System.out.println(matricula);
-                } catch (Exception ex) {
-                    Logger.getLogger(Asistencias.class.getName()).log(Level.SEVERE, null, ex);
+    private void handleTimerAction() throws Exception {
+        if ((radioIniciar.isSelected() || radioDetener.isSelected()) && !txtArea.getText().trim().isEmpty()) {
+            matricula = desencriptar.decrypt(txtArea.getText().trim());
+            if (pattern.matcher(matricula).matches()) {
+                if (radioIniciar.isSelected()) {
+                    registrarEntrada(matricula);
+                } else if (radioDetener.isSelected()) {
+                    registrarSalida(matricula);
                 }
-                matcher1 = pattern.matcher(matricula);
-                if (matcher1.matches()) {
-                    System.out.println(matricula + ": " + matcher1.matches());
-                    if (radioIniciar.isSelected()) {
-                        registrarEntrada(matricula);
-                    } else if (radioDetener.isSelected()) {
-                        registrarSalida(matricula);
-                    }
-                } else {
-                    System.out.println(matricula + ": " + matcher1.matches());
-                    JOptionPane.showMessageDialog(lblNombre, "El dato escaneado no corresponde a una matrícula válida", "Dato inválido", JOptionPane.ERROR_MESSAGE);
-                    txtArea.setText(null);
-                }
+            } else {
+                mostrarError("El dato escaneado no corresponde a una matrícula válida");
             }
         }
     }
     
     
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(lblNombre, mensaje, "Dato inválido", JOptionPane.ERROR_MESSAGE);
+        txtArea.setText(null);
+    }
+
     private void completarInformacion() {
-        
-        lblNombreRecuperado.setText(this.alumno.getNombreCompleto());
-        lblGradoRecuperado.setText(this.alumno.getGrado());
-        lblGrupoRecuperado.setText(this.alumno.getGrupo());
-        lblTurnoRecuperado.setText(this.alumno.getTurno());
+        lblNombreRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getNombreCompleto).orElse(""));
+        lblGradoRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getGrado).orElse(""));
+        lblGrupoRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getGrupo).orElse(""));
+        lblTurnoRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getTurno).orElse(""));
     }
 
     private void limpiarInformacion() {
@@ -144,65 +139,68 @@ public class Asistencias extends javax.swing.JPanel {
     }
     
     private void mostrarInformacion() {
-        lblInformacion.setEnabled(true);
-        lblNombre.setEnabled(true);
-        lblGrado.setEnabled(true);
-        lblGrupo.setEnabled(true);
-        lblTurno.setEnabled(true);
-        lblNombreRecuperado.setVisible(true);
-        lblGradoRecuperado.setVisible(true);
-        lblGrupoRecuperado.setVisible(true);
-        lblTurnoRecuperado.setVisible(true);
+        setInformacionVisible(true);
     }
     
     private void ocultarInformacion() {
-        lblInformacion.setEnabled(false);
-        lblNombre.setEnabled(false);
-        lblGrado.setEnabled(false);
-        lblGrupo.setEnabled(false);
-        lblTurno.setEnabled(false);
-        lblNombreRecuperado.setVisible(false);
-        lblGradoRecuperado.setVisible(false);
-        lblGrupoRecuperado.setVisible(false);
-        lblTurnoRecuperado.setVisible(false);
+        setInformacionVisible(false);
     }
     
-    private void registrarEntrada(String matricula){
+    private void setInformacionVisible(boolean visible) {
+        lblInformacion.setEnabled(visible);
+        lblNombre.setEnabled(visible);
+        lblGrado.setEnabled(visible);
+        lblGrupo.setEnabled(visible);
+        lblTurno.setEnabled(visible);
+        lblNombreRecuperado.setVisible(visible);
+        lblGradoRecuperado.setVisible(visible);
+        lblGrupoRecuperado.setVisible(visible);
+        lblTurnoRecuperado.setVisible(visible);
+    }
+    
+    private void registrarEntrada(String matricula) throws Exception{
         try {
-            asistencia = new AsistenciasDAOJDBC();
-            alumnosRecuperados = new AlumnosDAOJDBC();
-            alumno = alumnosRecuperados.selectOne(matricula);
+            asistenciaDAO = new AsistenciasDAOJDBC();
+            alumnosDAO = new AlumnosDAOJDBC();
+            alumno = alumnosDAO.selectOne(matricula);
+
             if (alumno != null) {
                 completarInformacion();
-                registro = asistencia.registrarEntrada(alumno);
+                asistenciaDAO.registrarEntrada(alumno);
                 txtArea.setText(null);
             } else {
-                JOptionPane.showMessageDialog(lblNombre, "La matrícula " + txtArea.getText().trim() + " no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
-                txtArea.setText(null);
+                mostrarError("La matrícula " + matricula + " no está registrada en la base de datos");
             }
         } catch (SQLException ex) {
-            System.out.println("Ha ocurrido un error al registrar la entrada: " + ex);
+            mostrarError("Ha ocurrido un error al registrar la entrada: " + ex.getMessage());
+            Logger.getLogger(Asistencias.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    private void registrarSalida(String matricula){
+    private void registrarSalida(String matricula) throws Exception{
         try {
-            asistencia = new AsistenciasDAOJDBC();
-            alumnosRecuperados = new AlumnosDAOJDBC();
-            alumno = alumnosRecuperados.selectOne(matricula);
+            asistenciaDAO = new AsistenciasDAOJDBC();
+            alumnosDAO = new AlumnosDAOJDBC();
+            alumno = alumnosDAO.selectOne(matricula);
+
             if (alumno != null) {
-                registro = asistencia.registrarSalida(alumno);
-                if (registro == 0) {
-                    JOptionPane.showMessageDialog(lblNombre, "Este asistente no tiene registro de entrada", "ATENCIÓN", JOptionPane.ERROR_MESSAGE);
+                AsistenciasDTO validarHora = asistenciaDAO.validarHoraEntrada(alumno);
+
+                if (validarHora.getHoraEntrada() == null) {
+                    System.out.println(validarHora.toString());
+                    asistenciaDAO.registrarSalidaSinEntrada(alumno);
+                } else {
+                    asistenciaDAO.registrarSalida(alumno);
                 }
-                txtArea.setText(null);
+
                 completarInformacion();
-            } else {
-                JOptionPane.showMessageDialog(lblNombre, "La matrícula " + matricula + " no está registrada en la base de datos", "Matrícula no encontrada", JOptionPane.ERROR_MESSAGE);
                 txtArea.setText(null);
+            } else {
+                mostrarError("La matrícula " + matricula + " no está registrada en la base de datos");
             }
         } catch (SQLException ex) {
-            System.out.println("Ha ocurrido un error al registrar la salida: " + ex);
+            mostrarError("Ha ocurrido un error al registrar la salida: " + ex.getMessage());
+            Logger.getLogger(Asistencias.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -238,7 +236,7 @@ public class Asistencias extends javax.swing.JPanel {
         setLayout(null);
 
         btnIniciar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        btnIniciar.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/codigo-qr.png")); // NOI18N
+        btnIniciar.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/AsistenciasQr/src/main/resources/images/codigo-qr.png")); // NOI18N
         btnIniciar.setText("Iniciar Escaneo");
         btnIniciar.setMaximumSize(new java.awt.Dimension(250, 80));
         btnIniciar.setMinimumSize(new java.awt.Dimension(250, 80));
@@ -252,7 +250,7 @@ public class Asistencias extends javax.swing.JPanel {
         btnIniciar.setBounds(37, 151, 250, 80);
 
         btnDetener.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
-        btnDetener.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/SoftwareAdministrativo/src/main/resources/images/detener(1).png")); // NOI18N
+        btnDetener.setIcon(new javax.swing.ImageIcon("/home/aspxe/NetBeansProjects/AsistenciasQr/src/main/resources/images/detener(1).png")); // NOI18N
         btnDetener.setText("Detener Escaneo");
         btnDetener.setMaximumSize(new java.awt.Dimension(250, 80));
         btnDetener.setMinimumSize(new java.awt.Dimension(250, 80));
@@ -270,7 +268,7 @@ public class Asistencias extends javax.swing.JPanel {
         jScrollPane1.setViewportView(txtArea);
 
         add(jScrollPane1);
-        jScrollPane1.setBounds(487, 151, 274, 96);
+        jScrollPane1.setBounds(487, 151, 254, 101);
 
         radioIniciar.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         radioIniciar.setText("Registrar Entrada");
@@ -280,7 +278,7 @@ public class Asistencias extends javax.swing.JPanel {
             }
         });
         add(radioIniciar);
-        radioIniciar.setBounds(403, 49, 175, 26);
+        radioIniciar.setBounds(403, 49, 200, 30);
 
         radioDetener.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         radioDetener.setText("Registrar Salida");
@@ -290,38 +288,38 @@ public class Asistencias extends javax.swing.JPanel {
             }
         });
         add(radioDetener);
-        radioDetener.setBounds(696, 49, 161, 26);
+        radioDetener.setBounds(696, 49, 180, 30);
 
         lblEstatus.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblEstatus.setForeground(new java.awt.Color(255, 0, 51));
         lblEstatus.setText("ESTATUS DE ACCIONES: NO SE HA SELECCIONADO UNA ACCIÓN");
         add(lblEstatus);
-        lblEstatus.setBounds(302, 93, 583, 22);
+        lblEstatus.setBounds(302, 93, 557, 26);
 
         lblInformacion.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblInformacion.setText("Información del asistente");
         add(lblInformacion);
-        lblInformacion.setBounds(521, 265, 221, 22);
+        lblInformacion.setBounds(490, 270, 250, 26);
 
         lblNombre.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblNombre.setText("Nombre Completo:");
         add(lblNombre);
-        lblNombre.setBounds(362, 302, 167, 22);
+        lblNombre.setBounds(362, 302, 170, 26);
 
         lblGrado.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblGrado.setText("Grado:");
         add(lblGrado);
-        lblGrado.setBounds(360, 330, 60, 22);
+        lblGrado.setBounds(360, 330, 59, 26);
 
         lblGrupo.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblGrupo.setText("Grupo:");
         add(lblGrupo);
-        lblGrupo.setBounds(360, 360, 61, 22);
+        lblGrupo.setBounds(360, 360, 60, 26);
 
         lblTurno.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblTurno.setText("Turno:");
         add(lblTurno);
-        lblTurno.setBounds(360, 390, 58, 22);
+        lblTurno.setBounds(360, 390, 58, 26);
         add(lblNombreRecuperado);
         lblNombreRecuperado.setBounds(535, 301, 350, 27);
         add(lblGradoRecuperado);

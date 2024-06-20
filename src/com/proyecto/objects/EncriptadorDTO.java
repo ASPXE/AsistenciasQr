@@ -21,12 +21,6 @@ public class EncriptadorDTO {
         this.key = createKey(this.clave);
     }
 
-    /**
-     * Método para convertir la cadena de clave en una clave AES.
-     * @param keyString La cadena que se utilizará como clave.
-     * @return La clave secreta AES generada.
-     * @throws Exception Si ocurre un error al generar la clave.
-     */
     private SecretKeySpec createKey(String keyString) throws Exception {
         byte[] key = keyString.getBytes("UTF-8");
         MessageDigest sha = MessageDigest.getInstance("SHA-256");
@@ -35,12 +29,6 @@ public class EncriptadorDTO {
         return new SecretKeySpec(key, "AES");
     }
 
-    /**
-     * Método para encriptar una cadena de texto utilizando AES.
-     * @param data La cadena de texto a encriptar.
-     * @return La cadena encriptada en formato Base64.
-     * @throws Exception Si ocurre un error durante la encriptación.
-     */
     public String encrypt(String data) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); // Modo CBC y relleno PKCS5Padding
         cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -52,35 +40,40 @@ public class EncriptadorDTO {
         return Base64.getEncoder().encodeToString(combined);
     }
 
-    /**
-     * Método para desencriptar una cadena encriptada con AES.
-     * @param encryptedData La cadena encriptada en formato Base64.
-     * @return La cadena desencriptada.
-     * @throws Exception Si ocurre un error durante la desencriptación.
-     */
+    private String sanitizeBase64String(String base64String) {
+        return base64String.replaceAll("[^a-zA-Z0-9+/=]", "").trim();
+    }
+
     public String decrypt(String encryptedData) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
-        // Decodificar la cadena Base64
-        byte[] combined = Base64.getDecoder().decode(encryptedData);
+        // Sanear la cadena Base64
+        byte[] combined = Base64.getDecoder().decode(sanitizeBase64String(encryptedData));
 
-        // Verificar la longitud del array combinado
         if (combined.length < 16 || (combined.length - 16) % 16 != 0) {
             throw new IllegalArgumentException("La longitud del array combinado no es válida para CBC con AES");
         }
 
-        // Extraer el IV de los primeros 16 bytes
         byte[] iv = Arrays.copyOfRange(combined, 0, 16);
-
-        // Extraer los datos cifrados
         byte[] encryptedBytes = Arrays.copyOfRange(combined, 16, combined.length);
 
-        // Inicializar el cipher para desencriptar
         cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
         byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
 
-        // Convertir los bytes desencriptados a cadena UTF-8
         return new String(decryptedBytes, "UTF-8");
+    }
+    
+    public static void main(String[] args) {
+        try {
+            EncriptadorDTO encriptador = new EncriptadorDTO();
+            String originalText = "Texto a encriptar";
+            String encryptedText = encriptador.encrypt(originalText);
+            System.out.println("Encrypted: " + encryptedText);
+            String decryptedText = encriptador.decrypt(encryptedText);
+            System.out.println("Decrypted: " + decryptedText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     

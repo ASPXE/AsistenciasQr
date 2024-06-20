@@ -102,7 +102,7 @@ public class CargarBD extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCargarBaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarBaseActionPerformed
-        int opcion = JOptionPane.showConfirmDialog(this, "El proceso eliminará la información existente de Alumnos y Asistencias. ¿Desea continuar?", "AVISO", JOptionPane.YES_NO_CANCEL_OPTION);
+        int opcion = JOptionPane.showConfirmDialog(this, "El proceso eliminará la información existente de Alumnos y la sobreescribirá con la del CSV. ¿Desea continuar?", "AVISO", JOptionPane.YES_NO_CANCEL_OPTION);
         if (opcion == JOptionPane.YES_OPTION) {
             new Task().execute();
         }
@@ -156,7 +156,7 @@ public class CargarBD extends javax.swing.JPanel {
                     grupo = datos[3];
                     turno = datos[4];
 
-                    alumno.setNombreCompleto(nombreCompleto);
+                    alumno.setNombre(nombreCompleto);
                     alumno.setMatricula(matricula);
                     alumno.setGrado(grado);
                     alumno.setGrupo(grupo);

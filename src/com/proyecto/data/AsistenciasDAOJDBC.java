@@ -27,16 +27,16 @@ public class AsistenciasDAOJDBC {
         this.conexionTransaccional = conexionTransaccional;
     }
     
-    private static final String SQL_SELECT_HORA_ENTRADA = "SELECT horaEntrada FROM Asistencias WHERE matricula = ? AND DATE(horaEntrada) = CURDATE()";
-    private static final String SQL_INSERT_ENTRADA = "INSERT INTO Asistencias(nombreCompleto, matricula, grado, grupo, turno, horaEntrada) VALUES(?, ?, ?, ?, ?, ?)";
+    private static final String SQL_SELECT_HORA_ENTRADA = "SELECT horaEntrada FROM asistencias WHERE matricula = ? AND DATE(horaEntrada) = CURDATE()";
+    private static final String SQL_INSERT_ENTRADA = "INSERT INTO asistencias(nombres, matricula, grado, grupo, turno, horaEntrada) VALUES(?, ?, ?, ?, ?, ?)";
     private static final String SQL_INSERT_SALIDA = 
-        "UPDATE Asistencias " +
+        "UPDATE asistencias " +
         "SET horaSalida = ? " +
         "WHERE matricula = ? " +
         "AND horaSalida IS NULL " +
         "AND DATE(horaEntrada) = CURDATE()";
-    private static final String SQL_INSERT_SALIDA_SIN_ENTRADA = "INSERT INTO Asistencias(nombreCompleto, matricula, grado, grupo, turno, horaSalida) VALUES(?, ?, ?, ?, ?, ?)";
-    private static final String SQL_TRUNCATE_ASISTENCIAS = "TRUNCATE TABLE Asistencias";
+    private static final String SQL_INSERT_SALIDA_SIN_ENTRADA = "INSERT INTO asistencias(nombres, matricula, grado, grupo, turno, horaSalida) VALUES(?, ?, ?, ?, ?, ?)";
+    private static final String SQL_TRUNCATE_ASISTENCIAS = "TRUNCATE TABLE asistencias";
     
     public AsistenciasDTO validarHoraEntrada(AlumnosDTO alumno) throws SQLException{
         Connection conn = null;
@@ -82,7 +82,7 @@ public class AsistenciasDAOJDBC {
         try{
             conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.conectar();
             stmt = conn.prepareStatement(AsistenciasDAOJDBC.SQL_INSERT_ENTRADA);
-            stmt.setString(1, alumno.getNombreCompleto());
+            stmt.setString(1, alumno.getNombre());
             stmt.setString(2, alumno.getMatricula());
             stmt.setString(3, alumno.getGrado());
             stmt.setString(4, alumno.getGrupo());
@@ -143,7 +143,7 @@ public class AsistenciasDAOJDBC {
         try{
             conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.conectar();
             stmt = conn.prepareStatement(AsistenciasDAOJDBC.SQL_INSERT_SALIDA_SIN_ENTRADA);
-            stmt.setString(1, alumno.getNombreCompleto());
+            stmt.setString(1, alumno.getNombre());
             stmt.setString(2, alumno.getMatricula());
             stmt.setString(3, alumno.getGrado());
             stmt.setString(4, alumno.getGrupo());

@@ -165,8 +165,8 @@ public class GenerarQrs extends javax.swing.JPanel {
 
             for (int i = 0; i < totalImages; i++) {
                 AlumnosDTO alumno = alumnosRecuperados.get(i);
-                String nombre = alumno.getNombreCompleto();
-                String matricula = encriptar.encrypt(alumno.getMatricula());
+                String nombre = alumno.getNombre();
+                String matricula = alumno.getMatricula();
                 String turno = alumno.getTurno();
                 String grado = alumno.getGrado();
                 String grupo = alumno.getGrupo();
@@ -186,10 +186,29 @@ public class GenerarQrs extends javax.swing.JPanel {
                 g.dispose();
 
                 Path directorio = Paths.get(ruta.getAbsolutePath(), turno, grado, grupo);
-                Files.createDirectories(directorio);
 
+                // Verifica si el directorio ya existe
+                if (!Files.exists(directorio)) {
+                  // Crea el directorio padre si no existe
+                  Files.createDirectories(directorio.getParent());
+
+                  try {
+                    Files.createDirectory(directorio);
+                    System.out.println("Directorio creado: " + directorio.toString());
+                  } catch (IOException e) {
+                    // Manejar errores de creación de directorio (excepto FileAlreadyExistsException)
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(GenerarQrs.this, "Error al crear el directorio: " + directorio.toString(), "ERROR", JOptionPane.ERROR_MESSAGE);
+                  }
+                } else {
+                  System.out.println("El directorio ya existe: " + directorio.toString());
+                  // Puedes optar por omitir la generación del QR o notificar al usuario
+                }
+                
                 Path path = directorio.resolve("qrcode_" + nombre + ".png");
+                System.out.println("Path antes de escribir: "+path.toString());
                 ImageIO.write(combined, "PNG", path.toFile());
+                System.out.println("QR escrito...");
 
                 int progress = (int) ((i + 1) / (double) totalImages * 100);
                 publish(progress);

@@ -28,17 +28,17 @@ public class AlumnosDAOJDBC {
         this.conexionTransaccional = conexionTransaccional;
     }
     
-    private static final String SQL_SELECT_ALL = "SELECT * FROM Alumnos";
-    private static final String SQL_SELECT_ONE = "SELECT * FROM Alumnos WHERE matricula = ?";
-    private static final String SQL_INSERT_ALL = "INSERT INTO Alumnos(nombreCompleto, matricula, grado, grupo, turno) VALUES(?,"
+    private static final String SQL_SELECT_ALL = "SELECT * FROM alumnos";
+    private static final String SQL_SELECT_ONE = "SELECT * FROM alumnos WHERE matricula = ?";
+    private static final String SQL_INSERT_ALL = "INSERT INTO alumnos(nombre, matricula, grado, grupo, turno) VALUES(?,"
             + "?, ?, ?, ?)";
-    private static final String SQL_DELETE_ONE = "DELETE FROM Alumnos WHERE matricula = ?";
-    private static final String SQL_TRUNCATE_ALUMNOS = "TRUNCATE TABLE Alumnos";
+    private static final String SQL_DELETE_ONE = "DELETE FROM alumnos WHERE matricula = ?";
+    private static final String SQL_TRUNCATE_ALUMNOS = "TRUNCATE TABLE alumnos";
     
     public List<AlumnosDTO> selectAll() throws SQLException{
         
         int idAlumnos = 0;
-        String nombreCompleto = "", matricula = "", grado = "", grupo = "", turno = "";
+        String nombre = "", matricula = "", grado = "", grupo = "", turno = "";
         
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -52,13 +52,13 @@ public class AlumnosDAOJDBC {
             rs = stmt.executeQuery();
             while(rs.next()){
                 idAlumnos = rs.getInt("idAlumnos");
-                nombreCompleto = rs.getString("nombreCompleto");
+                nombre = rs.getString("nombre");
                 matricula = rs.getString("matricula");
                 grado = rs.getString("grado");
                 grupo = rs.getString("grupo");
                 turno = rs.getString("turno");
                 
-                alumno = new AlumnosDTO(idAlumnos, nombreCompleto, matricula, grado, grupo, turno);
+                alumno = new AlumnosDTO(idAlumnos, nombre, matricula, grado, grupo, turno);
                 alumnos.add(alumno);
             }
         }catch(SQLException e){
@@ -77,7 +77,7 @@ public class AlumnosDAOJDBC {
     public AlumnosDTO selectOne(String matricula) throws SQLException{
         
         int idAlumnos = 0;
-        String nombreCompleto = "", matriculaRecuperada = "", grado = "", grupo = "", turno = "";
+        String nombre = "", matriculaRecuperada = "", grado = "", grupo = "", turno = "";
         
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -91,13 +91,13 @@ public class AlumnosDAOJDBC {
             rs = stmt.executeQuery();
             while(rs.next()){
                 idAlumnos = rs.getInt("idAlumnos");
-                nombreCompleto = rs.getString("nombreCompleto");
+                nombre = rs.getString("nombre");
                 matriculaRecuperada = rs.getString("matricula");
                 grado = rs.getString("grado");
                 grupo = rs.getString("grupo");
                 turno = rs.getString("turno");
                 
-                alumno = new AlumnosDTO(idAlumnos, nombreCompleto, matriculaRecuperada, grado, grupo, turno);
+                alumno = new AlumnosDTO(idAlumnos, nombre, matriculaRecuperada, grado, grupo, turno);
             }
         }catch(SQLException e){
             System.out.println("Ha ocurrido un error al tratar de recuperar los registros de Alumnos: "+e);
@@ -122,7 +122,7 @@ public class AlumnosDAOJDBC {
         try{
             conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.conectar();
             stmt = conn.prepareStatement(AlumnosDAOJDBC.SQL_INSERT_ALL);
-            stmt.setString(1, alumno.getNombreCompleto());
+            stmt.setString(1, alumno.getNombre());
             stmt.setString(2, alumno.getMatricula());
             stmt.setString(3, alumno.getGrado());
             stmt.setString(4, alumno.getGrupo());

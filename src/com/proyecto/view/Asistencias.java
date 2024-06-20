@@ -50,7 +50,7 @@ public class Asistencias extends javax.swing.JPanel {
         initComponents();
         initializeComponents();
 
-        timer = new Timer(200, new ActionListener() {
+        timer = new Timer(600, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -90,15 +90,23 @@ public class Asistencias extends javax.swing.JPanel {
     
     private void handleTimerAction() throws Exception {
         if ((radioIniciar.isSelected() || radioDetener.isSelected()) && !txtArea.getText().trim().isEmpty()) {
-            matricula = desencriptar.decrypt(txtArea.getText().trim());
-            if (pattern.matcher(matricula).matches()) {
-                if (radioIniciar.isSelected()) {
-                    registrarEntrada(matricula);
-                } else if (radioDetener.isSelected()) {
-                    registrarSalida(matricula);
+            String scannedData = txtArea.getText().trim();
+            System.out.println("Matricula escaneada: " + scannedData);
+            try {
+                String matricula = scannedData;
+                System.out.println("Matricula desencriptada: " + matricula);
+                if (pattern.matcher(matricula).matches()) {
+                    if (radioIniciar.isSelected()) {
+                        registrarEntrada(matricula);
+                    } else if (radioDetener.isSelected()) {
+                        registrarSalida(matricula);
+                    }
+                } else {
+                    mostrarError("El dato escaneado no corresponde a una matrícula válida");
                 }
-            } else {
-                mostrarError("El dato escaneado no corresponde a una matrícula válida");
+            } catch (Exception e) {
+                e.printStackTrace();
+                mostrarError("Error al desencriptar la matrícula: " + e.getMessage());
             }
         }
     }
@@ -110,7 +118,7 @@ public class Asistencias extends javax.swing.JPanel {
     }
 
     private void completarInformacion() {
-        lblNombreRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getNombreCompleto).orElse(""));
+        lblNombreRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getNombre).orElse(""));
         lblGradoRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getGrado).orElse(""));
         lblGrupoRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getGrupo).orElse(""));
         lblTurnoRecuperado.setText(Optional.ofNullable(alumno).map(AlumnosDTO::getTurno).orElse(""));
@@ -294,7 +302,7 @@ public class Asistencias extends javax.swing.JPanel {
         lblEstatus.setForeground(new java.awt.Color(255, 0, 51));
         lblEstatus.setText("ESTATUS DE ACCIONES: NO SE HA SELECCIONADO UNA ACCIÓN");
         add(lblEstatus);
-        lblEstatus.setBounds(302, 93, 557, 26);
+        lblEstatus.setBounds(302, 93, 590, 26);
 
         lblInformacion.setFont(new java.awt.Font("Liberation Sans", 1, 18)); // NOI18N
         lblInformacion.setText("Información del asistente");

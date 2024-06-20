@@ -8,7 +8,7 @@ package com.proyecto.objects;
 public class AlumnosDTO {
     
     private int idAlumnos;
-    private String nombreCompleto;
+    private String nombre;
     private String matricula;
     private String grado;
     private String grupo;
@@ -19,17 +19,17 @@ public class AlumnosDTO {
     public AlumnosDTO(){
         
     }
-    
-    // Constructor con todos las variables
-    public AlumnosDTO(int idAlumnos, String nombreCompleto, String matricula, String grado, String grupo,
-            String turno){
+
+    public AlumnosDTO(int idAlumnos, String nombre, String matricula, String grado, String grupo, String turno) {
         this.idAlumnos = idAlumnos;
-        this.nombreCompleto = nombreCompleto;
+        this.nombre = nombre;
         this.matricula = matricula;
         this.grado = grado;
         this.grupo = grupo;
         this.turno = turno;
     }
+    
+    
     
     // Constructor solo con idAlumnos
     public AlumnosDTO(int idAlumnos){
@@ -44,23 +44,23 @@ public class AlumnosDTO {
     // Metodos get y set
 
     public int getIdAlumnos() {
-        return this.idAlumnos;
+        return idAlumnos;
     }
 
     public void setIdAlumnos(int idAlumnos) {
         this.idAlumnos = idAlumnos;
     }
 
-    public String getNombreCompleto() {
-        return this.nombreCompleto;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setNombreCompleto(String nombreCompleto) {
-        this.nombreCompleto = nombreCompleto;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getMatricula() {
-        return this.matricula;
+        return matricula;
     }
 
     public void setMatricula(String matricula) {
@@ -68,7 +68,7 @@ public class AlumnosDTO {
     }
 
     public String getGrado() {
-        return this.grado;
+        return grado;
     }
 
     public void setGrado(String grado) {
@@ -76,7 +76,7 @@ public class AlumnosDTO {
     }
 
     public String getGrupo() {
-        return this.grupo;
+        return grupo;
     }
 
     public void setGrupo(String grupo) {
@@ -84,21 +84,19 @@ public class AlumnosDTO {
     }
 
     public String getTurno() {
-        return this.turno;
+        return turno;
     }
 
     public void setTurno(String turno) {
         this.turno = turno;
     }
-    
-    // Metodo toString
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("AlumnosDTO{");
         sb.append("idAlumnos=").append(idAlumnos);
-        sb.append(", nombreCompleto=").append(nombreCompleto);
+        sb.append(", nombre=").append(nombre);
         sb.append(", matricula=").append(matricula);
         sb.append(", grado=").append(grado);
         sb.append(", grupo=").append(grupo);
@@ -106,5 +104,7 @@ public class AlumnosDTO {
         sb.append('}');
         return sb.toString();
     }
+    
+    
     
 }

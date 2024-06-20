@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 public class AsistenciasDTO {
     
     private int idAsistencias;
-    private String nombreCompleto;
+    private String nombres;
     private String matricula;
     private String grado;
     private String grupo;
@@ -34,12 +34,12 @@ public class AsistenciasDTO {
         this.idAsistencias = idAsistencias;
     }
 
-    public String getNombreCompleto() {
-        return nombreCompleto;
+    public String getNombres() {
+        return nombres;
     }
 
-    public void setNombreCompleto(String nombreCompleto) {
-        this.nombreCompleto = nombreCompleto;
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
     }
 
     public String getMatricula() {
@@ -95,7 +95,7 @@ public class AsistenciasDTO {
         StringBuilder sb = new StringBuilder();
         sb.append("AsistenciasDTO{");
         sb.append("idAsistencias=").append(idAsistencias);
-        sb.append(", nombreCompleto=").append(nombreCompleto);
+        sb.append(", nombres=").append(nombres);
         sb.append(", matricula=").append(matricula);
         sb.append(", grado=").append(grado);
         sb.append(", grupo=").append(grupo);
@@ -105,6 +105,8 @@ public class AsistenciasDTO {
         sb.append('}');
         return sb.toString();
     }
+
+    
     
     
     

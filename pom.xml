@@ -65,7 +65,7 @@
                     </descriptorRefs>
                     <archive>
                     <manifest>
-                            <mainClass>com.asistencias.view.EscaneoQR</mainClass>
+                            <mainClass>com.proyecto.view.MenuPrincipal</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
